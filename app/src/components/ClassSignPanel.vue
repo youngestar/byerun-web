@@ -1,4 +1,4 @@
-<template>
+p<template>
     <el-card class="class-sign-panel" v-loading="loading">
         <template #header>
             <h3>俱乐部活动签到</h3>
@@ -23,7 +23,7 @@
                             <span>{{ club.activityName }} ({{ club.signInStudent }}/{{ club.maxStudent }})</span>
                             <span class="text-gray-500 text-sm" style="margin-top: 4px;">{{ club.startTime }} ~ {{
                                 club.endTime
-                            }}</span>
+                                }}</span>
                         </div>
                         <el-button size="small" type="success" :disabled="club.signInStudent >= club.maxStudent"
                             @click="handleJoinClub(club)">报名</el-button>
