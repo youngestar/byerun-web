@@ -2,102 +2,66 @@
   <div class="club-page min-h-full pb-4">
     <section class="mt-3 rounded-2xl border border-white/10 bg-white/5 p-3">
       <div class="grid grid-cols-2 gap-2">
-        <button
-          v-for="tab in MAIN_TABS"
-          :key="tab.key"
-          type="button"
-          :class="[
-            'h-9 rounded-xl border text-xs font-medium transition-colors',
-            activeMainTab === tab.key
-              ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
-              : 'border-white/10 bg-white/5 text-gray-300',
-          ]"
-          @click="activeMainTab = tab.key"
-        >
+        <button v-for="tab in MAIN_TABS" :key="tab.key" type="button" :class="[
+          'h-9 rounded-xl border text-xs font-medium transition-colors',
+          activeMainTab === tab.key
+            ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
+            : 'border-white/10 bg-white/5 text-gray-300',
+        ]" @click="activeMainTab = tab.key">
           {{ tab.label }}
         </button>
       </div>
 
       <div v-if="activeMainTab === 'activities'" class="mt-3 grid grid-cols-2 gap-2">
-        <button
-          v-for="tab in ACTIVITY_SUB_TABS"
-          :key="tab.key"
-          type="button"
-          :class="[
-            'h-8 rounded-xl border text-xs font-medium transition-colors',
-            activeActivityTab === tab.key
-              ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
-              : 'border-white/10 bg-white/5 text-gray-300',
-          ]"
-          @click="activeActivityTab = tab.key"
-        >
+        <button v-for="tab in ACTIVITY_SUB_TABS" :key="tab.key" type="button" :class="[
+          'h-8 rounded-xl border text-xs font-medium transition-colors',
+          activeActivityTab === tab.key
+            ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
+            : 'border-white/10 bg-white/5 text-gray-300',
+        ]" @click="activeActivityTab = tab.key">
           {{ tab.label }}
         </button>
       </div>
 
       <div v-if="activeMainTab === 'history'" class="mt-3 grid grid-cols-2 gap-2">
-        <button
-          v-for="tab in HISTORY_SUB_TABS"
-          :key="tab.key"
-          type="button"
-          :class="[
-            'h-8 rounded-xl border text-xs font-medium transition-colors',
-            activeHistoryTab === tab.key
-              ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
-              : 'border-white/10 bg-white/5 text-gray-300',
-          ]"
-          @click="activeHistoryTab = tab.key"
-        >
+        <button v-for="tab in HISTORY_SUB_TABS" :key="tab.key" type="button" :class="[
+          'h-8 rounded-xl border text-xs font-medium transition-colors',
+          activeHistoryTab === tab.key
+            ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
+            : 'border-white/10 bg-white/5 text-gray-300',
+        ]" @click="activeHistoryTab = tab.key">
           {{ tab.label }}
         </button>
       </div>
 
       <div class="mt-3 flex items-start gap-2">
-        <div
-          v-if="activeMainTab === 'activities' && activeActivityTab === 'list'"
-          ref="datePickerRef"
-          class="relative flex-1"
-        >
-          <button
-            type="button"
+        <div v-if="activeMainTab === 'activities' && activeActivityTab === 'list'" ref="datePickerRef"
+          class="relative flex-1">
+          <button type="button"
             class="w-full h-9 px-3 rounded-xl border border-white/10 bg-white/5 text-xs text-gray-100 inline-flex items-center justify-between"
-            @click="showDateDropdown = !showDateDropdown"
-          >
+            @click="showDateDropdown = !showDateDropdown">
             <span class="truncate">{{ selectedDateLabel }}</span>
-            <i
-              :class="showDateDropdown ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"
-              class="text-sm"
-            ></i>
+            <i :class="showDateDropdown ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" class="text-sm"></i>
           </button>
 
           <transition name="fade-slide">
-            <div
-              v-if="showDateDropdown"
-              class="absolute left-0 right-0 top-11 z-30 rounded-xl border border-white/10 bg-stone-900/95 backdrop-blur max-h-44 overflow-y-auto"
-            >
-              <button
-                v-for="day in dateOptions"
-                :key="day.value"
-                type="button"
-                :class="[
-                  'w-full h-9 px-3 text-left text-xs border-b border-white/5 last:border-b-0 transition-colors',
-                  selectedQueryDate === day.value
-                    ? 'text-cyan-200 bg-cyan-400/10'
-                    : 'text-gray-200 hover:bg-white/5',
-                ]"
-                @click="selectQueryDate(day.value)"
-              >
+            <div v-if="showDateDropdown"
+              class="absolute left-0 right-0 top-11 z-30 rounded-xl border border-white/10 bg-stone-900/95 backdrop-blur max-h-44 overflow-y-auto">
+              <button v-for="day in dateOptions" :key="day.value" type="button" :class="[
+                'w-full h-9 px-3 text-left text-xs border-b border-white/5 last:border-b-0 transition-colors',
+                selectedQueryDate === day.value
+                  ? 'text-cyan-200 bg-cyan-400/10'
+                  : 'text-gray-200 hover:bg-white/5',
+              ]" @click="selectQueryDate(day.value)">
                 {{ day.label }} {{ day.shortDate }}
               </button>
             </div>
           </transition>
         </div>
 
-        <button
-          type="button"
+        <button type="button"
           class="h-9 px-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 text-xs font-medium flex items-center gap-1.5"
-          @click="showFilters = !showFilters"
-        >
+          @click="showFilters = !showFilters">
           <i class="ri-equalizer-line text-sm"></i>
           <span>筛选</span>
         </button>
@@ -106,38 +70,23 @@
       <transition name="fade-slide">
         <div v-show="showFilters" class="mt-3 space-y-2">
           <div class="flex items-center gap-2 overflow-x-auto pb-1">
-            <button
-              v-for="option in statusOptions"
-              :key="option.value"
-              type="button"
-              :class="[
-                'shrink-0 h-8 px-3 rounded-full border text-xs transition-colors',
-                selectedStatus === option.value
-                  ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
-                  : 'border-white/10 bg-white/5 text-gray-300',
-              ]"
-              @click="selectedStatus = option.value"
-            >
+            <button v-for="option in statusOptions" :key="option.value" type="button" :class="[
+              'shrink-0 h-8 px-3 rounded-full border text-xs transition-colors',
+              selectedStatus === option.value
+                ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
+                : 'border-white/10 bg-white/5 text-gray-300',
+            ]" @click="selectedStatus = option.value">
               {{ option.label }}
             </button>
           </div>
 
-          <div
-            v-if="activeMainTab === 'activities'"
-            class="flex items-center gap-2 overflow-x-auto pb-1"
-          >
-            <button
-              v-for="item in itemFilterOptions"
-              :key="item.value"
-              type="button"
-              :class="[
-                'shrink-0 h-8 px-3 rounded-full border text-xs transition-colors',
-                selectedItemId === item.value
-                  ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
-                  : 'border-white/10 bg-white/5 text-gray-300',
-              ]"
-              @click="selectedItemId = item.value"
-            >
+          <div v-if="activeMainTab === 'activities'" class="flex items-center gap-2 overflow-x-auto pb-1">
+            <button v-for="item in itemFilterOptions" :key="item.value" type="button" :class="[
+              'shrink-0 h-8 px-3 rounded-full border text-xs transition-colors',
+              selectedItemId === item.value
+                ? 'border-cyan-400/50 bg-cyan-400/15 text-cyan-200'
+                : 'border-white/10 bg-white/5 text-gray-300',
+            ]" @click="selectedItemId = item.value">
               {{ item.label }}
             </button>
           </div>
@@ -160,12 +109,8 @@
       <article v-if="signTaskCard" class="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3">
         <div class="flex items-start gap-3">
           <div class="club-logo shrink-0 border-cyan-300/15 bg-cyan-400/15 text-cyan-100">
-            <img
-              v-if="signTaskCard.logoUrl"
-              :src="signTaskCard.logoUrl"
-              :alt="`${signTaskCard.title} 徽标`"
-              class="h-full w-full object-cover"
-            />
+            <img v-if="signTaskCard.logoUrl" :src="signTaskCard.logoUrl" :alt="`${signTaskCard.title} 徽标`"
+              class="h-full w-full object-cover" />
             <i v-else class="ri-shield-star-line text-lg"></i>
           </div>
 
@@ -181,29 +126,20 @@
             </div>
 
             <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-cyan-50/90">
-              <div
-                v-for="meta in signTaskCard.metaList"
-                :key="meta.key"
-                :class="['meta-pill meta-pill-cyan', meta.spanClass]"
-              >
+              <div v-for="meta in signTaskCard.metaList" :key="meta.key"
+                :class="['meta-pill meta-pill-cyan', meta.spanClass]">
                 <i :class="meta.icon"></i>
                 <span class="truncate">{{ meta.label }}</span>
               </div>
             </div>
 
             <div v-if="signTaskButtons.length > 0" class="mt-3 flex flex-wrap justify-end gap-2">
-              <button
-                v-for="action in signTaskButtons"
-                :key="action.key"
-                type="button"
-                :disabled="isSignTaskActionDisabled(action)"
-                :class="[
+              <button v-for="action in signTaskButtons" :key="action.key" type="button"
+                :disabled="isSignTaskActionDisabled(action)" :class="[
                   'h-8 px-3 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors',
                   action.buttonClass,
                   isSignTaskActionDisabled(action) && 'opacity-70 cursor-not-allowed',
-                ]"
-                @click="handleSignTaskAction(action.type)"
-              >
+                ]" @click="handleSignTaskAction(action.type)">
                 <i v-if="isSignTaskActionPending(action)" class="ri-loader-4-line animate-spin"></i>
                 <span>{{
                   isSignTaskActionPending(action) ? action.pendingLabel : action.label
@@ -214,11 +150,66 @@
         </div>
       </article>
 
-      <div
-        v-else
-        class="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4 text-xs text-cyan-100/80"
-      >
+      <div v-else class="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4 text-xs text-cyan-100/80">
         当前没有可执行签到/签退任务
+      </div>
+    </section>
+
+    <!-- 自动签到托管设置 (Auto Worker Configuration) -->
+    <section v-if="activeMainTab === 'activities'"
+      class="mt-3 rounded-2xl border border-white/10 bg-stone-900/50 p-4 space-y-3 shadow-lg">
+      <div class="flex items-center justify-between cursor-pointer"
+        @click="autoSignConfig.enabled = !autoSignConfig.enabled">
+        <div class="flex items-center gap-2">
+          <i class="ri-robot-2-line text-cyan-400 text-lg"></i>
+          <h4 class="text-sm font-semibold text-gray-200">自动签到/签退托管</h4>
+        </div>
+        <div
+          :class="['w-10 h-6 flex items-center rounded-full p-1 transition-colors', autoSignConfig.enabled ? 'bg-cyan-500' : 'bg-stone-700']">
+          <div
+            :class="['w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300', autoSignConfig.enabled ? 'translate-x-4' : 'translate-x-0']">
+          </div>
+        </div>
+      </div>
+
+      <div v-if="autoSignConfig.enabled" class="text-xs text-gray-400 border-t border-white/5 pt-3 mt-2">
+        <p class="leading-relaxed">
+          <span class="text-cyan-400 font-medium">运行中：</span><br />
+          Web Worker 多线程轮询已开启。<br />
+          请保持手机端屏幕常亮或勿切出本页，以防系统强制休眠。
+        </p>
+        <div class="mt-3 space-y-2">
+          <div class="flex items-center justify-between bg-stone-900/80 p-2 rounded-xl border border-white/5">
+            <span>签到允许窗口 (±分钟): </span>
+            <input type="number" v-model.number="autoSignConfig.signInOffset"
+              class="w-16 bg-stone-800 border border-white/10 rounded-lg px-2 py-1 text-center text-gray-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              min="1" max="60" />
+          </div>
+          <div class="flex items-center justify-between bg-stone-900/80 p-2 rounded-xl border border-white/5">
+            <span>签退允许窗口 (±分钟): </span>
+            <input type="number" v-model.number="autoSignConfig.signBackOffset"
+              class="w-16 bg-stone-800 border border-white/10 rounded-lg px-2 py-1 text-center text-gray-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              min="1" max="60" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-white/5" v-if="runLogs && runLogs.length > 0">
+        <div class="flex items-center justify-between mb-2">
+          <h5 class="text-xs font-semibold text-gray-300 flex items-center gap-1.5"><i class="ri-file-list-3-line"></i>
+            执行日志</h5>
+          <button type="button" @click="clearLogs"
+            class="text-xs text-red-400/80 hover:text-red-300 transition-colors px-2 py-1 rounded-lg hover:bg-red-400/10">清空</button>
+        </div>
+        <div
+          class="max-h-36 overflow-y-auto space-y-1.5 text-[11px] bg-black/20 p-2.5 rounded-xl border border-white/5 font-mono">
+          <div v-for="(log, idx) in runLogs" :key="idx" class="leading-relaxed flex gap-2 break-all">
+            <span class="text-stone-500 shrink-0">[{{ log.time }}]</span>
+            <span
+              :class="{ 'text-emerald-400': log.type === 'success', 'text-amber-400': log.type === 'warning', 'text-red-400': log.type === 'error', 'text-gray-300': log.type === 'info' }"
+              class="flex-1"> {{ log.msg }}</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -229,29 +220,20 @@
 
     <section class="mt-2 space-y-3">
       <template v-if="loading">
-        <div
-          v-for="idx in 4"
-          :key="`skeleton-${idx}`"
-          class="rounded-2xl border border-white/10 bg-white/5 p-3 animate-pulse"
-        >
+        <div v-for="idx in 4" :key="`skeleton-${idx}`"
+          class="rounded-2xl border border-white/10 bg-white/5 p-3 animate-pulse">
           <div class="h-4 w-2/3 bg-white/10 rounded"></div>
           <div class="mt-3 h-3 w-full bg-white/10 rounded"></div>
           <div class="mt-2 h-3 w-4/5 bg-white/10 rounded"></div>
         </div>
       </template>
 
-      <div
-        v-else-if="cards.length === 0"
-        class="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-gray-400"
-      >
+      <div v-else-if="cards.length === 0"
+        class="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-gray-400">
         {{ emptyMessage }}
       </div>
 
-      <article
-        v-for="card in cards"
-        :key="card.key"
-        class="rounded-2xl border border-white/10 bg-white/5 p-3"
-      >
+      <article v-for="card in cards" :key="card.key" class="rounded-2xl border border-white/10 bg-white/5 p-3">
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0 flex-1">
             <h3 class="text-sm font-semibold text-white truncate">{{ card.title }}</h3>
@@ -280,17 +262,12 @@
         </p>
 
         <div v-if="card.action" class="mt-3 flex items-center justify-end">
-          <button
-            type="button"
-            :disabled="card.action.disabled || isCardActionPending(card)"
-            :class="[
-              'h-8 px-3 rounded-lg text-xs font-medium text-white transition-colors inline-flex items-center gap-1.5',
-              card.action.buttonClass,
-              (card.action.disabled || isCardActionPending(card)) &&
-                'opacity-70 cursor-not-allowed',
-            ]"
-            @click="handleCardAction(card)"
-          >
+          <button type="button" :disabled="card.action.disabled || isCardActionPending(card)" :class="[
+            'h-8 px-3 rounded-lg text-xs font-medium text-white transition-colors inline-flex items-center gap-1.5',
+            card.action.buttonClass,
+            (card.action.disabled || isCardActionPending(card)) &&
+            'opacity-70 cursor-not-allowed',
+          ]" @click="handleCardAction(card)">
             <i v-if="isCardActionPending(card)" class="ri-loader-4-line animate-spin"></i>
             <span>{{
               isCardActionPending(card) ? card.action.pendingLabel : card.action.label
@@ -299,21 +276,15 @@
         </div>
       </article>
 
-      <div
-        v-if="
-          activeMainTab === 'history' &&
-          activeHistoryTab === 'record' &&
-          cards.length > 0 &&
-          historyHasMore
-        "
-        class="pt-1"
-      >
-        <button
-          type="button"
+      <div v-if="
+        activeMainTab === 'history' &&
+        activeHistoryTab === 'record' &&
+        cards.length > 0 &&
+        historyHasMore
+      " class="pt-1">
+        <button type="button"
           class="w-full h-9 rounded-xl border border-white/10 bg-white/5 text-xs text-gray-200 inline-flex items-center justify-center gap-1.5"
-          :disabled="historyLoadingMore"
-          @click="loadMoreHistoryRecords"
-        >
+          :disabled="historyLoadingMore" @click="loadMoreHistoryRecords">
           <i v-if="historyLoadingMore" class="ri-loader-4-line animate-spin"></i>
           <span>{{ historyLoadingMore ? '加载中...' : '加载更多' }}</span>
         </button>
@@ -326,6 +297,7 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue';
 import { api, appConfig } from '@/sdk/app';
 import { useDataStore } from '@/composables/useDataStore';
+import { useClubAutoWorker } from '@/composables/useClubAutoWorker';
 
 const MAIN_TABS = [
   { key: 'activities', label: '活动列表' },
@@ -373,7 +345,7 @@ const WEEKDAY_TEXT = {
   7: '日',
 };
 
-const showMessage = inject('showMessage', () => {});
+const showMessage = inject('showMessage', () => { });
 const { userInfo, token, loading: userLoading, fetchUserData } = useDataStore();
 
 const activeMainTab = ref('activities');
@@ -661,6 +633,10 @@ watch(showFilters, async (next) => {
   if (!next || activeMainTab.value !== 'activities') return;
   if (itemOptionsLoaded.value || itemOptionsLoading.value) return;
   await loadItemOptions();
+});
+
+const { autoSignConfig, isExecutingAuto, runLogs, clearLogs } = useClubAutoWorker({
+  studentId, api, signTask, loadSignTask, showMessage
 });
 
 onMounted(async () => {
@@ -979,6 +955,7 @@ function isSignTaskActionPending(action) {
 }
 
 function isSignTaskActionDisabled(action) {
+  if (isExecutingAuto.value) return true;
   if (!action) return true;
   if (action.disabled) return true;
   return signPendingType.value !== '';
