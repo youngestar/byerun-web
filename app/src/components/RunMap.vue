@@ -8,7 +8,7 @@ import AMapLoader from '@amap/amap-jsapi-loader';
 import { getMapData, generateDynamicPath } from '@/utils/map';
 
 // 添加 AMap 类型声明
-declare const AMap: any;
+const AMap = (window as any).AMap;
 
 const props = defineProps<{
     mapChoice: string;

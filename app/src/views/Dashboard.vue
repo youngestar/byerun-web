@@ -47,6 +47,10 @@
             @pageChange="handleTableChange"
           />
         </template>
+
+        <template v-else-if="activeNav === 'classSign'">
+          <ClassSignPanel />
+        </template>
       </div>
     </el-main>
 
@@ -63,6 +67,7 @@
         >
           <el-menu-item index="home">数据</el-menu-item>
           <el-menu-item index="records">记录</el-menu-item>
+          <el-menu-item index="classSign">签到</el-menu-item>
         </el-menu>
       </div>
     </div>
@@ -194,6 +199,7 @@ import SubmitForm from "@/components/SubmitForm.vue";
 import StatsPanel from "@/components/StatsPanel.vue";
 import RunRecords from "@/components/RunRecords.vue";
 import NoticeBoard from "@/components/NoticeBoard.vue";
+import ClassSignPanel from "@/components/ClassSignPanel.vue";
 import { ElMessage } from "element-plus";
 
 const userStore = useUserStore();

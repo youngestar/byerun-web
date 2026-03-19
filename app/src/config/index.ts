@@ -34,4 +34,9 @@ export const API_URLS = {
   sendSms: "/auth/sendSmsForPassWord",
   updatePassword: "/auth/updateUserPassWord",
   schoolBound: "/unirun/querySchoolBound",
+  getSignInTf: "/clubactivity/getSignInTf",
+  signInOrSignBack: "/clubactivity/signInOrSignBack",
+  sportsClassClocking: "/sports/class/getMySportsClassClocking",
+  queryActivityList: "/clubactivity/queryActivityList",
+  joinClubActivity: "/clubactivity/joinClubActivity",
 } as const;
