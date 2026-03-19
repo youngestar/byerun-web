@@ -1,37 +1,42 @@
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import { resolve } from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = dirname(__filename);
-// https://vite.dev/config/
-export default defineConfig({
-    plugins: [vue()],
+import { defineConfig, loadEnv } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+
+  return {
+    plugins: [tailwindcss(), vue()],
     resolve: {
-        alias: {
-            "@": resolve(__dirname, "src"),
-        },
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
     },
     optimizeDeps: {
-        include: ["vue-router", "pinia", "element-plus"],
+      include: ['leaflet'],
     },
     server: {
-        port: 5173,
-        hmr: {
-            overlay: false,
+      hot: true,
+      host: '0.0.0.0',
+      port: 5173,
+      strictPort: true,
+      allowedHosts: 'all',
+      cors: true,
+      proxy: {
+        '/devproxy': {
+          target: 'https://run-lb.tanmasports.com/v1',
+          secure: false,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/devproxy/, ''),
         },
-    },
-    build: {
-        chunkSizeWarningLimit: 1500,
-        rollupOptions: {
-            output: {
-                manualChunks: function (id) {
-                    if (id.includes("node_modules")) {
-                        return "vendor";
-                    }
-                },
-            },
+        '/autorunserver': {
+          target: env.VITE_AUTORUN_SERVER_BASE,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/autorunserver/, ''),
         },
+      },
     },
+  };
 });

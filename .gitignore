@@ -23,14 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
 .env*
 !.env.example
-*.md
 
-debug/
 .history/
-.cache/
-coverage/
 
-standalone-map-draw/
+__pycache__/
