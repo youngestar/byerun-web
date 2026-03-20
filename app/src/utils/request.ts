@@ -27,7 +27,7 @@ class Request {
         // 生成签名
         const sign = generateSign(
           config.method === "get" ? config.params : null,
-          config.method === "post" ? config.data : null
+          config.method === "post" ? config.data : null,
         );
         config.headers.sign = sign;
 
@@ -36,7 +36,7 @@ class Request {
       (error: any) => {
         ElMessage.error("请求发送失败：" + error.message);
         return Promise.reject(error);
-      }
+      },
     );
 
     // 响应拦截器
@@ -51,22 +51,27 @@ class Request {
 
         // 处理业务错误
         if (code !== 10000) {
-          ElMessage.error(msg || "请求失败");
-
           // token 过期或无效
-          if (code === 401 || (code === 1000 && msg && !!msg.match(/登录|过期|无效|失效/))) {
+          if (
+            code === 401 ||
+            (code === 1000 && msg && !!msg.match(/登录|过期|无效|失效/))
+          ) {
             const userDataStr = localStorage.getItem("userData");
             if (userDataStr) {
               const userData = JSON.parse(userDataStr);
               if (userData.phone && userData.pwdHash) {
                 console.log("检测到登录失效，阻断跳转，抛出以供静默重登");
+                localStorage.removeItem("token");
                 return Promise.reject(new Error("AUTO_LOGIN_REQUIRED"));
               }
             }
+            ElMessage.error(msg || "登录已失效");
             localStorage.removeItem("token");
             router.push("/login");
+            return Promise.reject(new Error(msg));
           }
 
+          ElMessage.error(msg || "请求失败");
           return Promise.reject(new Error(msg));
         }
 
@@ -75,7 +80,6 @@ class Request {
       (error) => {
         const status = error.response?.status;
         const errorMsg = errorMessages[status] || "请求失败，请稍后重试";
-        ElMessage.error(errorMsg);
 
         // HTTP 401 错误也需要处理
         if (status === 401) {
@@ -84,15 +88,19 @@ class Request {
             const userData = JSON.parse(userDataStr);
             if (userData.phone && userData.pwdHash) {
               console.log("检测到 HTTP 401，阻断跳转，抛出以供静默重登");
+              localStorage.removeItem("token");
               return Promise.reject(new Error("AUTO_LOGIN_REQUIRED"));
             }
           }
+          ElMessage.error(errorMsg);
           localStorage.removeItem("token");
           router.push("/login");
+          return Promise.reject(error);
         }
 
+        ElMessage.error(errorMsg);
         return Promise.reject(error);
-      }
+      },
     );
   }
 
@@ -108,7 +116,7 @@ class Request {
   post<T = any>(
     url: string,
     data?: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<T> {
     return this.instance.post(url, data, config);
   }
