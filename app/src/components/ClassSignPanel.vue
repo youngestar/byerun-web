@@ -106,7 +106,6 @@ p<template>
 import { ref, onMounted, computed, watch, onUnmounted } from 'vue';
 import { userService } from '@/services/user';
 import { authService } from '@/services/auth';
-import { authService } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus';
 import type { SportsClassClocking, SignInTf, ClubInfo } from '@/types/api';
@@ -150,13 +149,17 @@ const startWorker = () => {
     const code = `
         let timer = null;
         self.addEventListener('message', (e) => {
-            if (e.data === 'start') {
-                if(timer) clearInterval(timer);
-                // 3分钟 180000ms 轮询
-                timer = setInterval(() => self.postMessage('tick'), 180000);
+            const data = e.data;
+            if (data && data.type === 'schedule_tick') {
+                if(timer) clearTimeout(timer);
+                const delay = data.delay || 180000;
+                timer = setTimeout(() => {
+                    self.postMessage('tick');
+                }, delay);
+            } else if (data === 'start') {
                 self.postMessage('tick'); // 启动时立刻执行一次检查
-            } else if (e.data === 'stop') {
-                if(timer) clearInterval(timer);
+            } else if (data === 'stop') {
+                if(timer) clearTimeout(timer);
                 timer = null;
             }
         });
@@ -271,9 +274,27 @@ const tryAutoLogin = async () => {
 };
 
 const checkAndAutoSign = async () => {
-    if (isExecutingAuto.value) return;
+    if (isExecutingAuto.value) {
+        // 如果正在执行中，被意外唤醒则必须也发下一次 tick 防止断链
+        if (worker) {
+            worker.postMessage({ type: 'schedule_tick', delay: 60 * 1000 });
+        }
+        return;
+    }
+
+    // 抽象一个统一的回调器，确保在任何 return 分支都能维系下一次轮询，否则 worker 中的 setTimeout 会断链死亡。
+    const scheduleNextTick = (delayMs: number = 10 * 60 * 1000) => {
+        // 这里不要加 isExecutingAuto === false 判断，因为可能有些状态刚回滚
+        if (worker) {
+            worker.postMessage({ type: 'schedule_tick', delay: delayMs });
+        }
+    };
+
     const studentId = userStore.userInfo?.studentId;
-    if (!studentId) return;
+    if (!studentId) {
+        scheduleNextTick();
+        return;
+    }
 
     // 获取最新状态
     try {
@@ -283,15 +304,19 @@ const checkAndAutoSign = async () => {
         if (e.message === 'AUTO_LOGIN_REQUIRED' || (e.message && e.message.match(/登录|过期|无效|失效/))) {
             const relogged = await tryAutoLogin();
             if (relogged) {
-                return checkAndAutoSign(); // 静默重登成功，立即重试循环
+                return checkAndAutoSign(); // 静默重登成功，立即重试循环，当前帧不需要 scheduleNextTick
             }
         }
         addLog('请求状态接口失败，等待下次轮询', 'error');
+        scheduleNextTick();
         return;
     }
 
-    // 没有活动，直接忽略
-    if (!clubActivity.value || !clubActivity.value.activityId) return;
+    // 没有活动，直接忽略，但必须保持心跳轮询
+    if (!clubActivity.value || !clubActivity.value.activityId) {
+        scheduleNextTick();
+        return;
+    }
 
     const now = new Date().getTime();
     try {
@@ -313,17 +338,28 @@ const checkAndAutoSign = async () => {
         const endTs = parseTime(clubActivity.value.endTime);
 
         if (isNaN(startTs) || isNaN(endTs)) {
-            addLog('返回的时间格式无法自动解析，请检查', 'error');
+            addLog('返回的时间格式无法自动解析，等待下次轮询', 'error');
+            scheduleNextTick();
             return;
         }
         const signInOffsetMs = autoSignConfig.value.signInOffset * 60 * 1000;
         const signBackOffsetMs = autoSignConfig.value.signBackOffset * 60 * 1000;
 
+        // 【动态轮询计算】：距离任何一个目标时间（签到/签退）的最短时间差
+        let minDeltaMs = Infinity;
+        if (clubActivity.value.signStatus === '1') {
+            minDeltaMs = Math.min(minDeltaMs, Math.abs(startTs - now));
+        } else if (clubActivity.value.signInStatus === '1' && clubActivity.value.signStatus === '2') {
+            minDeltaMs = Math.min(minDeltaMs, Math.abs(endTs - now));
+        }
+
         // 【判断签退】：如果时间满足签退，并且当前需要签退 (signInStatus 已签到且 signStatus 等待签退)
         if (now >= endTs - signBackOffsetMs && now <= endTs + signBackOffsetMs) {
             if (clubActivity.value.signInStatus === '1' && clubActivity.value.signStatus === '2') {
                 await executeRetryTask('2');
-                return; // 如果进入签退流程，不进行签到
+                // 签退后如果关闭了 enabled，watch 会触发 stopWorker，但我们依然可以调度（会被吃掉或者无效），这里为了健壮性加个判断
+                if (autoSignConfig.value.enabled) scheduleNextTick();
+                return; 
             }
         }
 
@@ -331,10 +367,23 @@ const checkAndAutoSign = async () => {
         if (now >= startTs - signInOffsetMs && now <= startTs + signInOffsetMs) {
             if (clubActivity.value.signStatus === '1') {
                 await executeRetryTask('1');
+                // 签到完成后，立刻调度重新拉取最新状态（变成待签退），稍微快点(1分钟)
+                scheduleNextTick(60 * 1000);
+                return;
             }
         }
+
+        // 常规动态调度下一个 tick
+        let nextDelayMs = 10 * 60 * 1000; // 默认 10 分钟 (慢速模式)
+        if (minDeltaMs <= 15 * 60 * 1000) {
+            // 当距离目标时间差 <= 15分钟 时，进入冲刺/活跃模式，每 3 分钟拉取一次
+            nextDelayMs = 3 * 60 * 1000;
+        }
+        scheduleNextTick(nextDelayMs);
+
     } catch (e) {
         addLog('时间解析异常，无法判断。', 'error');
+        scheduleNextTick();
     }
 };
 
