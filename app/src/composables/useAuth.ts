@@ -37,6 +37,7 @@ export function useAuth() {
 
         userStore.setUserInfo({
           phone,
+          pwdHash: hashedPassword,
           name: studentName,
           school: schoolName,
           userId,

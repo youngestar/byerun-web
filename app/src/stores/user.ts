@@ -4,6 +4,7 @@ interface UserState {
   token: string | null;
   userInfo: {
     phone: string;
+    pwdHash?: string;
     name: string;
     school: string;
     userId: number;

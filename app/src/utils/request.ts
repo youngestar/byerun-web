@@ -54,7 +54,15 @@ class Request {
           ElMessage.error(msg || "请求失败");
 
           // token 过期或无效
-          if (code === 401) {
+          if (code === 401 || (code === 1000 && msg && !!msg.match(/登录|过期|无效|失效/))) {
+            const userDataStr = localStorage.getItem("userData");
+            if (userDataStr) {
+              const userData = JSON.parse(userDataStr);
+              if (userData.phone && userData.pwdHash) {
+                console.log("检测到登录失效，阻断跳转，抛出以供静默重登");
+                return Promise.reject(new Error("AUTO_LOGIN_REQUIRED"));
+              }
+            }
             localStorage.removeItem("token");
             router.push("/login");
           }
@@ -71,6 +79,14 @@ class Request {
 
         // HTTP 401 错误也需要处理
         if (status === 401) {
+          const userDataStr = localStorage.getItem("userData");
+          if (userDataStr) {
+            const userData = JSON.parse(userDataStr);
+            if (userData.phone && userData.pwdHash) {
+              console.log("检测到 HTTP 401，阻断跳转，抛出以供静默重登");
+              return Promise.reject(new Error("AUTO_LOGIN_REQUIRED"));
+            }
+          }
           localStorage.removeItem("token");
           router.push("/login");
         }
