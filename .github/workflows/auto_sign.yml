@@ -1,37 +1,37 @@
 name: Byerun Auto Sign (Cloud Worker)
 
 on:
-  schedule:
-    # GitHub Action 的 cron 使用 UTC 时间，比北京时间慢 8 小时。
-    # 每天北京时间的 08:00 到 22:00，这对应于 UTC 00:00 到 14:00
-    # 每 10 分钟运行一次
-    - cron: '*/10 0-14 * * *'
-  # 允许在 GitHub 网页上手动点击运行按钮以测试
-  workflow_dispatch:
+    schedule:
+        # GitHub Action 的 cron 使用 UTC 时间，比北京时间慢 8 小时。
+        # 每天北京时间的 08:00 到 22:00，这对应于 UTC 00:00 到 14:00
+        # 每 10 分钟运行一次
+        - cron: "*/10 0-14 * * *"
+    # 允许在 GitHub 网页上手动点击运行按钮以测试
+    workflow_dispatch:
 
 jobs:
-  run-auto-sign:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 检出代码仓库
-        uses: actions/checkout@v3
+    run-auto-sign:
+        runs-on: ubuntu-latest
 
-      - name: 建立 Node.js 20 环境
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+        steps:
+            - name: 检出代码仓库
+              uses: actions/checkout@v3
 
-      - name: 安装运行依赖 (axios & crypto-js)
-        # 我们把打卡脚本放进 app/ 目录下，所以要进入 app/ 或者如果没依赖也可以只安装这俩
-        run: |
-          cd app
-          npm install axios crypto-js --no-save
+            - name: 建立 Node.js 20 环境
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
 
-      - name: 执行签到检测脚本
-        env:
-          USER_PHONE: ${{ secrets.USER_PHONE }}
-          USER_PWD: ${{ secrets.USER_PWD }}
-        run: |
-          cd app
-          node scripts/runner.js
+            - name: 安装运行依赖 (axios & crypto-js)
+              # 我们把打卡脚本放进 app/ 目录下，所以要进入 app/ 或者如果没依赖也可以只安装这俩
+              run: |
+                  cd app
+                  npm install axios crypto-js --no-save
+
+            - name: 执行签到检测脚本
+              env:
+                  USER_PHONE: ${{ secrets.USER_PHONE }}
+                  USER_PWD: ${{ secrets.USER_PWD }}
+              run: |
+                  cd app
+                  node scripts/runner.js

@@ -23,7 +23,7 @@ p<template>
                             <span>{{ club.activityName }} ({{ club.signInStudent }}/{{ club.maxStudent }})</span>
                             <span class="text-gray-500 text-sm" style="margin-top: 4px;">{{ club.startTime }} ~ {{
                                 club.endTime
-                            }}</span>
+                                }}</span>
                         </div>
                         <el-button size="small" type="success" :disabled="club.signInStudent >= club.maxStudent"
                             @click="handleJoinClub(club)">报名</el-button>
@@ -359,7 +359,7 @@ const checkAndAutoSign = async () => {
                 await executeRetryTask('2');
                 // 签退后如果关闭了 enabled，watch 会触发 stopWorker，但我们依然可以调度（会被吃掉或者无效），这里为了健壮性加个判断
                 if (autoSignConfig.value.enabled) scheduleNextTick();
-                return; 
+                return;
             }
         }
 

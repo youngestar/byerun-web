@@ -77,7 +77,7 @@ export function useAuth() {
   const resetPassword = async (
     phone: string,
     password: string,
-    code: string
+    code: string,
   ) => {
     try {
       loading.value = true;
