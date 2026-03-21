@@ -68,6 +68,7 @@ const request = axios.create({
   headers: {
     "Content-Type": "application/json",
     appKey: appKey,
+    "User-Agent": "okhttp/3.12.0",
   },
 });
 
@@ -99,22 +100,40 @@ function parseTime(timeStr) {
   return new Date(str).getTime();
 }
 
+// === 随机延迟与指纹生成 ===
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function generateUUID() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 // === 主逻辑 ===
 async function runAutoSign() {
   console.log(
     `[${new Date().toLocaleTimeString()}] 开始执行自动签到检测流程...`,
   );
 
-  // 1. 登录拿 Token
+  // 1. 增加随机休眠 (0~3分钟)，防止每次触发时间过于精确(整10分)被风控特征识别
+  const randomDelayMs = Math.floor(Math.random() * 3 * 60 * 1000);
+  console.log(
+    `⏳ 为增强隐蔽性，随机等待 ${(randomDelayMs / 1000).toFixed(1)} 秒...`,
+  );
+  await sleep(randomDelayMs);
+
+  // 2. 登录拿 Token
   let studentId;
   try {
     const device = {
       appVersion: "1.8.3",
       brand: "iPhone",
-      deviceToken: "",
+      deviceToken: generateUUID(), // 伪造随机的设备Token
       deviceType: "2",
       mobileType: "iPhone 15 Pro Max",
-      sysVersion: "10",
+      sysVersion: "17.4.1", // 修正符合 iPhone 15 的真实系统版本
     };
     const res = await request.post("/auth/login/password", {
       ...device,
