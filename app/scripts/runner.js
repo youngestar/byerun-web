@@ -67,8 +67,12 @@ const request = axios.create({
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
-    appKey: appKey,
+    Accept: "application/json, text/plain, */*",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+    Connection: "keep-alive",
     "User-Agent": "okhttp/3.12.0",
+    appKey: appKey,
   },
 });
 
@@ -151,6 +155,11 @@ async function runAutoSign() {
     console.log("✅ 登录成功，拿到了 Token");
   } catch (err) {
     console.error("❌ 登录请求异常:", err.message);
+    if (err.response) {
+      console.error("🔍 附加详细状态码:", err.response.status);
+      console.error("🔍 附加返回内容:", err.response.data);
+      console.error("🔍 请求头发出内容:", err.config.headers);
+    }
     return;
   }
 
